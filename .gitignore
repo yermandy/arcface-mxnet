@@ -1,6 +1,6 @@
 __pycache__
 .DS_Store
 
-# images
-# resources
-# results
+images
+resources
+results
