@@ -10,21 +10,17 @@ parser = argparse.ArgumentParser(description='ArcFace feature extraction')
 parser.add_argument('--batch_size', default=90, type=int, help='Batch size')
 parser.add_argument('--dataset', required=True, type=str, help='Dataset name')
 parser.add_argument('--landmarks', required=True, type=str, help='Path to the file with paths and landmarks')
-parser.add_argument('--bb_scale', default=0.5, type=float, help='Bounding box scale')
 parser.add_argument('--cuda', default=-1, type=int, help='Cuda device')
 parser.add_argument('--model', default='MobileFaceNet', choices=['MS1MV2-ResNet100-Arcface', 'MobileFaceNet'], help='path to load model.')
-
 args = parser.parse_args()
 
-dataset_name = args.dataset
-bb_scale = args.bb_scale
 
-os.makedirs(f'results/{dataset_name}_{bb_scale}/', exist_ok=True)
+os.makedirs(f'results/{args.dataset}/', exist_ok=True)
 
 
 def save_results(features, norms):
-    np.save(f"results/{dataset_name}_{bb_scale}/features.npy", features)
-    np.save(f"results/{dataset_name}_{bb_scale}/norms.npy", norms)
+    np.save(f"results/{args.dataset}/features.npy", features)
+    np.save(f"results/{args.dataset}/norms.npy", norms)
 
 
 def batches(iterable, size):
@@ -42,8 +38,6 @@ def feature_extraction(model: Embedding, landmarks=None):
     norms = np.empty((n_imgs))
     start, finished = 0, 0
     
-    # faces = np.concatenate((faces, landmarks[:, 1:]), axis=1)
-    
     save_each = 100
 
     for batch_iter, batch in enumerate(batches(landmarks, args.batch_size)):
@@ -54,7 +48,7 @@ def feature_extraction(model: Embedding, landmarks=None):
         images_batch = np.empty((size, 3, 112, 112))
         for i, image in enumerate(batch):
             landmarks = image[1:].astype(int)
-            path = f"images/{dataset_name}/{image[0]}"
+            path = f"images/{args.dataset}/{image[0]}"
             images_batch[i] = model.preprocess(path, landmarks=landmarks)
         
         # extract features
